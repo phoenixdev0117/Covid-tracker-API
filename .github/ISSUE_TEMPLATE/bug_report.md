@@ -17,8 +17,10 @@ Please include the verbose flag. `-v`
 1. Getting Italy data at `v2/locations/IT` gives a 422.
 2. Expected to same data as `/v2/locations?country_code=IT`
 2. See httpie request & response below
+
 ```sh
  http GET https://coronavirus-tracker-api.herokuapp.com/v2/locations/IT -v                                                                                                                                                            
+
 GET /v2/locations/IT HTTP/1.1
 Accept: */*
 Accept-Encoding: gzip, deflate
@@ -55,6 +57,7 @@ A clear and concise description of what you expected to happen.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
+
 
 **Additional context**
 Add any other context about the problem here.

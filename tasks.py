@@ -20,7 +20,7 @@ TARGETS_DESCRIPTION = "Paths/directories to format. [default: . ]"
 def sort(ctx, targets="."):
     """Sort module imports."""
     print("sorting imports ...")
-    args = ["isort", "-rc", "--atomic", targets]
+    args = ["isort", "--atomic", targets]
     ctx.run(" ".join(args))
 
 
@@ -40,12 +40,13 @@ def check(ctx, fmt=False, sort=False, diff=False):  # pylint: disable=redefined-
         sort = True
 
     fmt_args = ["black", "--check", "."]
-    sort_args = ["isort", "-rc", "--check", "."]
+    sort_args = ["isort", "--check", "."]
 
     if diff:
         fmt_args.append("--diff")
         sort_args.append("--diff")
 
+    # FIXME: run each command and check return code
     cmd_args = []
     if fmt:
         cmd_args.extend(fmt_args)
@@ -71,12 +72,23 @@ def test(ctx):
 @invoke.task
 def generate_reqs(ctx):
     """Generate requirements.txt"""
-    reqs = ["pipenv lock -r > requirements.txt", "pipenv lock -r --dev > requirements-dev.txt"]
+    # NOTE: updated for pipenv 2020 release
+    # TODO: make backwards compatible
+    reqs = [
+        "pipenv lock -r > requirements.txt",
+        "pipenv lock -r --dev-only > requirements-dev.txt",
+    ]
     [ctx.run(req) for req in reqs]
 
 
 @invoke.task
-def docker(ctx, build=False, run=False, tag="covid-tracker-api:latest", name=f"covid-api-{random.randint(0,999)}"):
+def docker(
+    ctx,
+    build=False,
+    run=False,
+    tag="covid-tracker-api:latest",
+    name=f"covid-api-{random.randint(0,999)}",
+):
     """Build and run docker container."""
     if not any([build, run]):
         raise invoke.Exit(message="Specify either --build or --run", code=1)

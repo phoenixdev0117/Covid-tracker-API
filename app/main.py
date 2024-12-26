@@ -2,17 +2,20 @@
 app.main.py
 """
 import logging
-import os
 
 import pydantic
+import sentry_sdk
 import uvicorn
 from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
+from scout_apm.async_.starlette import ScoutMiddleware
+from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
+from .config import get_settings
 from .data import data_source
-from .router.v1 import V1
-from .router.v2 import V2
+from .routers import V1, V2
 from .utils.httputils import setup_client_session, teardown_client_session
 
 # ############
@@ -20,13 +23,18 @@ from .utils.httputils import setup_client_session, teardown_client_session
 # ############
 LOGGER = logging.getLogger("api")
 
+SETTINGS = get_settings()
+
+if SETTINGS.sentry_dsn:  # pragma: no cover
+    sentry_sdk.init(dsn=SETTINGS.sentry_dsn)
+
 APP = FastAPI(
     title="Coronavirus Tracker",
     description=(
         "API for tracking the global coronavirus (COVID-19, SARS-CoV-2) outbreak."
         " Project page: https://github.com/ExpDev07/coronavirus-tracker-api."
     ),
-    version="2.0.2",
+    version="2.0.4",
     docs_url="/",
     redoc_url="/docs",
     on_startup=[setup_client_session],
@@ -37,10 +45,27 @@ APP = FastAPI(
 # Middleware
 #######################
 
+# Scout APM
+if SETTINGS.scout_name:  # pragma: no cover
+    LOGGER.info(f"Adding Scout APM middleware for `{SETTINGS.scout_name}`")
+    APP.add_middleware(ScoutMiddleware)
+else:
+    LOGGER.debug("No SCOUT_NAME config")
+
+# Sentry Error Tracking
+if SETTINGS.sentry_dsn:  # pragma: no cover
+    LOGGER.info("Adding Sentry middleware")
+    APP.add_middleware(SentryAsgiMiddleware)
+
 # Enable CORS.
 APP.add_middleware(
-    CORSMiddleware, allow_credentials=True, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
+    CORSMiddleware,
+    allow_credentials=True,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
+APP.add_middleware(GZipMiddleware, minimum_size=1000)
 
 
 @APP.middleware("http")
@@ -59,7 +84,7 @@ async def add_datasource(request: Request, call_next):
     request.state.source = source
 
     # Move on...
-    LOGGER.info(f"source provided: {source.__class__.__name__}")
+    LOGGER.debug(f"source provided: {source.__class__.__name__}")
     response = await call_next(request)
     return response
 
@@ -92,5 +117,5 @@ APP.include_router(V2, prefix="/v2", tags=["v2"])
 # Running of app.
 if __name__ == "__main__":
     uvicorn.run(
-        "app.main:APP", host="127.0.0.1", port=int(os.getenv("PORT", "5000")), log_level="info",
+        "app.main:APP", host="127.0.0.1", port=SETTINGS.port, log_level="info",
     )
