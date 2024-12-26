@@ -7,14 +7,18 @@ asyncmock==0.4.2
 attrs==21.2.0
 bandit==1.7.0
 black==19.10b0
-certifi==2021.5.30
+
+certifi==2022.12.7
+
 chardet==3.0.4
 click==7.1.2
 coverage==5.5
 coveralls==3.0.0
 docopt==0.6.2
 gitdb==4.0.7
-gitpython==3.1.17
+
+gitpython==3.1.16
+
 idna==2.10
 importlib-metadata==3.7.0 ; python_version < '3.8'
 iniconfig==1.1.1
@@ -43,6 +47,8 @@ smmap==4.0.0
 stevedore==3.3.0
 toml==0.10.2
 typed-ast==1.4.3
-urllib3[secure]==1.26.5
+
+urllib3[secure]==1.26.4 ; python_version >= '3.5'
+
 wrapt==1.12.1
 zipp==3.4.1
