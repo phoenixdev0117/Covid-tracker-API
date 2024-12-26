@@ -32,10 +32,12 @@ pyyaml==5.4.1
 requests==2.25.1
 scout-apm==2.18.0
 sentry-sdk==0.20.3
+
 six==1.16.0
 starlette==0.13.6
 typing-extensions==3.10.0.0
 urllib3[secure]==1.26.4 ; python_version >= '3.5'
+
 uvicorn[standard]==0.13.4
 uvloop==0.15.2
 watchgod==0.7
