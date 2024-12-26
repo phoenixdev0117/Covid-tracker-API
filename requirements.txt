@@ -8,6 +8,7 @@ async-timeout==3.0.1
 asyncache==0.1.1
 attrs==21.2.0
 cachetools==4.2.1
+
 certifi==2022.12.7
 cffi==1.14.5
 chardet==3.0.4
@@ -26,7 +27,9 @@ idna==2.10
 multidict==5.1.0
 psutil==5.8.0
 pycparser==2.20
+
 pydantic[dotenv]==1.8.2
+
 pyopenssl==20.0.1
 python-dateutil==2.8.1
 python-dotenv==0.17.1
@@ -34,6 +37,7 @@ pyyaml==5.4.1
 requests==2.25.1
 scout-apm==2.18.0
 sentry-sdk==0.20.3
+
 
 six==1.16.0
 starlette==0.13.6
